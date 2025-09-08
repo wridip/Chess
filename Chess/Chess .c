@@ -2,7 +2,7 @@
 #include <ctype.h>
 #include <string.h>
 #include <stdlib.h> // For abs()
-
+/*
 // Function to print the board
 void print_board(char board[8][8]) 
 {
@@ -17,6 +17,28 @@ void print_board(char board[8][8])
         printf("\n");
     }
     printf("  a b c d e f g h\n"); // Column letters
+}
+*/
+
+
+void print_board(char board[8][8])
+{
+    printf("\n");
+    printf("    a   b   c   d   e   f   g   h\n");
+    printf("  +---+---+---+---+---+---+---+---+\n");
+
+    for (int i = 0; i < 8; i++)
+    {
+        printf("%d ", 8 - i); // Row numbers (8 to 1)
+
+        for (int j = 0; j < 8; j++)
+        {
+            printf("| %c ", board[i][j]);
+        }
+        printf("| %d\n", 8 - i); // Row numbers on right side too
+        printf("  +---+---+---+---+---+---+---+---+\n");
+    }
+    printf("    a   b   c   d   e   f   g   h\n");
 }
 
 // Function to set up the chess board
