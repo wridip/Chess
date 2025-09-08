@@ -1,59 +1,6 @@
-/*
 #include <stdio.h>
 #include <ctype.h>
-#include <stdlib.h> // For the abs() function
-
-int main() 
-{
-    char board[8][8];
-
-    // Set up empty squares
-    for (int i = 0; i < 8; i++) 
-    {
-        for (int j = 0; j < 8; j++) 
-        {
-            board[i][j] = ' ';
-        }
-    }
-
-    // Set up white pawns
-    for (int j = 0; j < 8; j++) {
-        board[1][j] = 'P';
-    }
-
-    // Set up other white pieces
-    board[0][0] = 'R';
-    board[0][1] = 'N';
-    board[0][2] = 'B';
-    board[0][3] = 'Q';
-    board[0][4] = 'K';
-    board[0][5] = 'B';
-    board[0][6] = 'N';
-    board[0][7] = 'R';
-
-    // Set up black pawns
-    for (int j = 0; j < 8; j++) 
-    {
-        board[6][j] = 'p';
-    }
-
-    // Set up other black pieces
-    board[7][0] = 'r';
-    board[7][1] = 'n';
-    board[7][2] = 'b';
-    board[7][3] = 'q';
-    board[7][4] = 'k';
-    board[7][5] = 'b';
-    board[7][6] = 'n';
-    board[7][7] = 'r';
-
-    return 0;
-}
-*/
-
-
-#include <stdio.h>
-#include <ctype.h>
+#include <string.h>
 #include <stdlib.h> // For abs()
 
 // Function to print the board
@@ -362,45 +309,141 @@ int check_pawn_path(char board[8][8], int row1, int col1, int row2, int col2)
 // forward declarations of your functions
 void setup_board(char board[8][8]);
 void print_board(char board[8][8]);
-int check_pawn_path(char board[8][8], int r1, int c1, int r2, int c2);
-int check_rook_path(char board[8][8], int r1, int c1, int r2, int c2);
-int check_knight_path(char board[8][8], int r1, int c1, int r2, int c2);
-int check_bishop_path(char board[8][8], int r1, int c1, int r2, int c2);
-int check_queen_path(char board[8][8], int r1, int c1, int r2, int c2);
-int check_king_path(char board[8][8], int r1, int c1, int r2, int c2);
+int check_pawn_path(char board[8][8], int row1, int col1, int row2, int col2);
+int check_rook_path(char board[8][8], int row1, int col1, int row2, int col2);
+int check_knight_path(char board[8][8], int row1, int col1, int row2, int col2);
+int check_bishop_path(char board[8][8], int row1, int col1, int row2, int col2);
+int check_queen_path(char board[8][8], int row1, int col1, int row2, int col2);
+int check_king_path(char board[8][8], int row1, int col1, int row2, int col2);
 
-/*
-int main() {
+
+void make_move(char board[8][8], int row1, int col1, int row2, int col2)
+{
+    char piece = board[row1][col1];
+	char target = board[row2][col2];
+
+    if (target != ' ')
+    {
+        printf("%c captures %c at (%d, %d)\n", piece, target, 'a' + col2, 8 - row2);
+	}
+    board[row2][col2] = piece;  //move piece to new position
+    board[row1][col1] = ' ';    //empty the old position
+}
+
+//helper function to convert chess notation to array indices
+int parse_square(const char* sq, int* row, int* col) //took help from google 
+{
+    // expects like "e2"
+    if (!sq || strlen(sq) < 2)  //is the pointer null or does the string have at least 2 characters?
+    {
+		return 0;
+    }
+	char file = tolower((unsigned char)sq[0]);  //First character is file (a-h)
+	char rank = sq[1];                          //Second character is rank (1-8)
+    if (file < 'a' || file > 'h' || rank < '1' || rank > '8') return 0;
+    *col = file - 'a';              // a->0 ... h->7
+    *row = 8 - (rank - '0');        // '8'->0 ... '1'->7 (top row is 0)
+    return 1;
+}
+
+
+int main() 
+{
     char board[8][8];
     setup_board(board);
 
-    while (1) {
+    int white_turn = 1; // white starts first
+
+    while (1) 
+    {
         print_board(board);
 
-        int r1, c1, r2, c2;
-        printf("Enter your move (from_row from_col to_row to_col): ");
-        scanf_s("%d %d %d %d", &r1, &c1, &r2, &c2);
+        if (white_turn)
+        {
+            printf("White's move (uppercase pieces):\n");
+        }
+        else
+            printf("Black's move (lowercase pieces):\n");
 
-        char piece = board[r1][c1];
+        int row1, col1, row2, col2;
+		char from_square[3], to_square[3];
+        
+        char input[50];
+        printf("Enter your move (e.g., e2 e4): ");
+
+        if (fgets(input, sizeof(input), stdin) == NULL)
+        {
+            printf("Error reading input. Please try again.\n\n");
+            continue;
+		}
+        if (sscanf(input, "%2s %2s", from_square, to_square) != 2)
+        {
+            printf("Invalid input format! Use format like e2 e4.\n\n");
+            continue;
+        }
+       //  printf("Enter your move (from_row from_col to_row to_col): ");
+       //  scanf_s("%d %d %d %d", &row1, &col1, &row2, &col2);
+
+		/* out of bounds check
+        if (row1 < 0 || row1 > 7 || col1 < 0 || col1 > 7 ||
+            row2 < 0 || row2 > 7 || col2 < 0 || col2 > 7)
+        {
+            printf("Move out of bounds! Rows and columns must be between 0 and 7.\n\n");
+            continue;
+		}
+        */
+        
+
+		//using the helper function to parse input
+        if (!parse_square(from_square, &row1, &col1) || !parse_square(to_square, &row2, &col2))
+        {
+            ("Invalid input format! Use format like e2 e4.\n\n");
+			continue;
+        }
+
+        char piece = board[row1][col1];
+
+        //Check if the square is empty
+        if (piece == ' ')
+        {
+            printf("No piece at that position!\n\n");
+            continue;
+        }
+        if (white_turn && !isupper(piece))
+        {
+            printf("It's White's turn! Please move a white piece (uppercase).\n\n");
+            continue;
+        }
+        if (!white_turn && !islower(piece))
+        {
+            printf("It's Black's turn! Please move a black piece (lowercase).\n\n");
+            continue;
+        }
+
         int valid = 0;
 
+        //Validate move according to the piece type
         switch (tolower(piece)) {
-        case 'p': valid = check_pawn_path(board, r1, c1, r2, c2); break;
-        case 'r': valid = check_rook_path(board, r1, c1, r2, c2); break;
-        case 'n': valid = check_knight_path(board, r1, c1, r2, c2); break;
-        case 'b': valid = check_bishop_path(board, r1, c1, r2, c2); break;
-        case 'q': valid = check_queen_path(board, r1, c1, r2, c2); break;
-        case 'k': valid = check_king_path(board, r1, c1, r2, c2); break;
-        default: printf("No piece at that position!\n"); continue;
+        case 'p': valid = check_pawn_path(board, row1, col1, row2, col2); break;
+        case 'r': valid = check_rook_path(board, row1, col1, row2, col2); break;
+        case 'n': valid = check_knight_path(board, row1, col1, row2, col2); break;
+        case 'b': valid = check_bishop_path(board, row1, col1, row2, col2); break;
+        case 'q': valid = check_queen_path(board, row1, col1, row2, col2); break;
+        case 'k': valid = check_king_path(board, row1, col1, row2, col2); break;
+        default: 
+            printf("No piece at that position!\n"); 
+            continue;
         }
 
         if (valid)
-            printf(" Valid move!\n\n");
+        {
+            make_move(board, row1, col1, row2, col2); //update board
+            white_turn = !white_turn; //switch turn
+        }
         else
-            printf(" Invalid move!\n\n");
+        {
+            printf("Invalid move! Try again.\n\n");
+        }
     }
-
     return 0;
 }
-*/
-
